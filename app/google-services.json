@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "357520196024",
+    "project_id": "myday-f1870",
+    "storage_bucket": "myday-f1870.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:357520196024:android:8e149ac5fb0210e1784f4d",
+        "android_client_info": {
+          "package_name": "com.sid.myday"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "357520196024-dgn3v9t6ebm5ksekfi3te5lbarm2qhc6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYXAulGLSVMDC6nZiBK2wGZ6pxh8Km_00"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "357520196024-0jjembofh2pkli70sndu8orb73egmr44.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

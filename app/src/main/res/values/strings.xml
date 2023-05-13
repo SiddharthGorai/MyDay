@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MyDay</string>
+    <string name="please_verify_your_email_and_login">please_verify_your_email_and_login</string>
+    <string name="email">Email</string>
+    <string name="reset">reset</string>
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
+    <string name="leftarrow"><![CDATA[<]]></string>
+    <string name="rightarrow"><![CDATA[>]]></string>
+    <string name="day">Day</string>
+</resources>
