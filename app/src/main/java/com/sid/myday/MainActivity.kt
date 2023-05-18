@@ -1,24 +1,26 @@
 package com.sid.myday
 
 import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.ImageButton
+import android.widget.ListView
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
@@ -27,8 +29,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import java.text.SimpleDateFormat
+import com.google.firebase.messaging.FirebaseMessaging
 import java.util.Calendar
+
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mDatabase: DatabaseReference
@@ -36,13 +39,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var section: String
     private lateinit var signoutAlert: AlertDialog.Builder
     private lateinit var drawerLayout: DrawerLayout
+    private lateinit var calendar: Calendar
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
-
+    private lateinit var pBar: ProgressBar
+    private lateinit var subj: Array<String>
 
     private fun changePassword(menu: Menu) {
-
-        val uBar = findViewById<ProgressBar>(R.id.pBar)
-        uBar.visibility = View.VISIBLE
 
         val auth = Firebase.auth
         val dEmail = menu.findItem(R.id.demail)
@@ -52,9 +54,8 @@ class MainActivity : AppCompatActivity() {
 
         auth.sendPasswordResetEmail(uEmail.trim())
             .addOnSuccessListener {
-                uBar.visibility = View.INVISIBLE
                 val alertDialog = AlertDialog.Builder(this)
-                alertDialog.setTitle("MyVault")
+                alertDialog.setTitle("MyDay")
                     .setCancelable(true)
                     .setMessage("A password change link has been sent to your eamil.")
                     .setNegativeButton("Ok") { dialogInterface, it ->
@@ -91,6 +92,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         return if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
@@ -100,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("MissingInflatedId")
+    @SuppressLint("MissingInflatedId", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -118,27 +120,62 @@ class MainActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
         actionBarDrawerToggle.syncState()
 
+        pBar = findViewById(R.id.pBar)
+        pBar.visibility = View.VISIBLE
+
+        FirebaseMessaging.getInstance().subscribeToTopic("news")
+            .addOnCompleteListener { task ->
+                var msg = "Done"
+                if (!task.isSuccessful) {
+                    msg = "Failed"
+                }
+            }
+
+
         val navView: NavigationView = findViewById(R.id.navView)
         val menu: Menu = navView.menu
         changeMenuBar(menu)
         navView.setNavigationItemSelectedListener { it ->
             when (it.itemId) {
                 R.id.signOut -> doThis()
-                R.id.changePass -> changePassword(menu)
+                R.id.changePass -> {
+
+                    changePassword(menu)}
+
             }
             true
         }
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU){
-            if(ContextCompat.checkSelfPermission(this,
-                android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(this,
-                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),101)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 101
+                )
+            }
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.SCHEDULE_EXACT_ALARM
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.SCHEDULE_EXACT_ALARM), 102
+                )
             }
         }
+
+
         val calender: Calendar = Calendar.getInstance()
         var day: Int = calender.get(Calendar.DAY_OF_WEEK)
         day -= 1
+        var subjectNot = arrayOf<String>()
+
+
         val arrowLeft: ImageButton = findViewById(R.id.arrowL)
         val arrowRight: ImageButton = findViewById(R.id.arrowR)
         mDatabase = Firebase.database.reference
@@ -146,12 +183,23 @@ class MainActivity : AppCompatActivity() {
             for (i in it.children) {
                 section = i.value.toString()
                 showData(day)
+                mDatabase.child(section).child(day.toString()).get().addOnSuccessListener { it ->
+                    for (i in it.children) {
+                        subjectNot += i.value.toString()
+                        if(subjectNot.size == 4) subjectNot += " "
+
+                    }
+//                    setAlarm(7, 50, subjectNot)
+                }.addOnFailureListener { it ->
+                }
+
                 break
             }
 
         }.addOnFailureListener { it ->
 
         }
+
 
         arrowLeft.setOnClickListener {
 
@@ -205,7 +253,7 @@ class MainActivity : AppCompatActivity() {
         mListTime.adapter = arrayAdapterTime
 
 
-        var subj: Array<String> = arrayOf()
+        subj = arrayOf()
 
         mDatabase.child(section).child(day.toString()).get().addOnSuccessListener { it ->
             for (i in it.children) {
@@ -213,23 +261,15 @@ class MainActivity : AppCompatActivity() {
             }
             arrayAdapterSubj = ArrayAdapter(this, android.R.layout.simple_list_item_1, subj)
             mListSubj.adapter = arrayAdapterSubj
+            pBar.visibility = View.INVISIBLE
 
         }.addOnFailureListener { it ->
 
         }
 
-        val checkTime = arrayOf("7:09","9:50","10:50","11:50","1:50",
-            "2:50","3:50","4:50","5:50")
 
-        // make this code run everytime
-        val timeObj = Calendar.getInstance().time
-        val formatter = SimpleDateFormat("HH:mm")
-        val current = formatter.format(timeObj)
 
-        if(checkTime.contains(current)){
-            val contText = current + ": " + subj[subj.indexOf(current)]
-            makeNotification(contText)
-        }
+
     }
 
     private fun doThis() {
@@ -249,41 +289,34 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun makeNotification(contText: String) {
+    private fun setAlarm(hour: Int, min: Int, subject: Array<String>) {
+        calendar = Calendar.getInstance()
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
 
-        val channelID = "CHANNEL_ID_NOTIFICATION"
-        val builder = NotificationCompat.Builder(applicationContext, channelID)
-        builder.setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("MyDay")
-            .setContentText(contText)
-            .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-        val intent = Intent(this, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            applicationContext,
-            0, intent, PendingIntent.FLAG_MUTABLE
-        )
-        builder.setContentIntent(pendingIntent)
-
-        val notificationManager: NotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-
-                val importance = NotificationManager.IMPORTANCE_HIGH
-                val notificationChannel = NotificationChannel(
-                    channelID, " Some description",
-                    importance)
-                notificationChannel.lightColor = Color.GREEN
-                notificationChannel.enableVibration(true)
-                notificationManager.createNotificationChannel(notificationChannel)
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
 
+        var hourvar = hour
+        for (i in 0..9) {
+            if (subject[i].trim().isNotEmpty()) {
+                val intent = Intent(this, MyReciever::class.java)
+                intent.putExtra("data", subject[i])
+
+                calendar.set(Calendar.HOUR_OF_DAY, hourvar)
+                calendar.set(Calendar.MINUTE, min)
+
+                val pendingIntent = PendingIntent.getBroadcast(
+                    this,
+                    i, intent, PendingIntent.FLAG_IMMUTABLE
+                )
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, pendingIntent)
+
+            }
+            hourvar += 1
         }
-        notificationManager.notify(0,builder.build())
 
+        Toast.makeText(this, "Alarm set successfully..", Toast.LENGTH_SHORT).show()
 
     }
 

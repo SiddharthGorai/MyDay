@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/my_drawer_layout"
     tools:context=".MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -28,64 +27,67 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MainActivity">
 
     <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp">
-        <ImageButton
-            android:id="@+id/arrowL"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/baseline_arrow_left_24"
-            android:clickable="true"
-            android:background="?attr/selectableItemBackground"
-            android:focusable="true" />
-        <TextView
-            android:id="@+id/timeText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/day"
-            android:textSize="30sp" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".MainActivity">
 
-        <ImageButton
-            android:id="@+id/arrowR"
-            android:layout_width="wrap_content"
-            android:clickable="true"
-            android:background="?attr/selectableItemBackground"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/baseline_arrow_right_24"
-            android:focusable="true" />
+            android:padding="10dp">
+
+            <ImageButton
+                android:id="@+id/arrowL"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/baseline_arrow_left_24" />
+
+            <TextView
+                android:id="@+id/timeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/day"
+                android:textSize="30sp" />
+
+            <ImageButton
+                android:id="@+id/arrowR"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/baseline_arrow_right_24" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="320dp"
+            android:layout_height="531dp"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <ListView
+                android:id="@+id/userListTime"
+                android:layout_width="148dp"
+                android:layout_height="match_parent" />
+
+            <ListView
+                android:id="@+id/userList"
+                android:layout_width="150dp"
+                android:layout_height="match_parent" />
+        </LinearLayout>
 
 
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="320dp"
-        android:layout_gravity="center"
-        android:layout_height="531dp"
-        android:orientation="horizontal"
-        android:padding="10dp">
-
-        <ListView
-            android:id="@+id/userListTime"
-            android:layout_width="148dp"
-            android:layout_height="match_parent" />
-
-        <ListView
-            android:id="@+id/userList"
-            android:layout_width="150dp"
-            android:layout_height="match_parent" />
-    </LinearLayout>
-
-
-</LinearLayout>
 
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/navView"

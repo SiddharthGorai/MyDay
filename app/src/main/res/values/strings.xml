@@ -8,4 +8,5 @@
     <string name="leftarrow"><![CDATA[<]]></string>
     <string name="rightarrow"><![CDATA[>]]></string>
     <string name="day">Day</string>
+
 </resources>
